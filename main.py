@@ -22,13 +22,12 @@ with requests.Session() as session:
 
     # Giriş sonrası HTTP durum koduna göre kontrol
     if response.status_code == 200:
-        print('Giriş başarılı!')
         # Giriş sonrası sayfanın içeriğini kontrol et
         if 'https://malitablolar.com/Analiz' in response.url:
-            print('Analiz sayfasına yönlendirildi.')
+            print('Parola Doğru.')
         elif 'https://malitablolar.com/Aut/Login' in response.url:
             print('Şifre yanlış, tekrar deneyin.')
         else:
             print('Bilinmeyen bir durum oluştu.')
     else:
-        print('Giriş başarısız!')
+        print('Bilinmeyen bir durum oluştu.')
