@@ -1,9 +1,8 @@
-import getpass
 import requests
 
 # Kullanıcıdan bilgileri alma
 kullanici_adi = input("Email: ")
-sifre = getpass.getpass("Şifre: ")  # getpass kullanarak şifreyi gizle
+sifre = input("Şifre: ")
 
 # Giriş bilgileri
 login_data = {
@@ -24,5 +23,12 @@ with requests.Session() as session:
     # Giriş sonrası HTTP durum koduna göre kontrol
     if response.status_code == 200:
         print('Giriş başarılı!')
+        # Giriş sonrası sayfanın içeriğini kontrol et
+        if 'https://malitablolar.com/Analiz' in response.url:
+            print('Analiz sayfasına yönlendirildi.')
+        elif 'https://malitablolar.com/Aut/Login' in response.url:
+            print('Şifre yanlış, tekrar deneyin.')
+        else:
+            print('Bilinmeyen bir durum oluştu.')
     else:
         print('Giriş başarısız!')
