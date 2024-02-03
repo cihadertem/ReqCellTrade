@@ -1,24 +1,25 @@
+import getpass
 import requests
 
-# Giriş yapılacak sayfa
-url = 'https://malitablolar.com/login'
+# Kullanıcıdan bilgileri alma
+kullanici_adi = input("Email: ")
+sifre = getpass.getpass("Şifre: ")  # getpass kullanarak şifreyi gizle
 
 # Giriş bilgileri
 login_data = {
-    'username': 'kullanici_adi',
-    'password': 'sifre',
-    'submit': 'Login'
+    'Email': kullanici_adi,
+    'Sifre': sifre
 }
+
+# Giriş yapılacak sayfanın URL'si
+url = 'https://malitablolar.com/Aut/Login'
 
 # Oturum başlatma ve giriş yapma
 with requests.Session() as session:
     response = session.get(url)
 
-    # Giriş URL'sini almak için HTML içeriğini inceleme
-    login_url = 'https://malitablolar.com/login'  # Örneğin, burada login sayfasının URL'sini belirtin
-
     # Giriş verilerini ekleyerek POST isteği gönderme
-    response = session.post(login_url, data=login_data)
+    response = session.post(url, data=login_data)
 
     # Giriş sonrası HTTP durum koduna göre kontrol
     if response.status_code == 200:
