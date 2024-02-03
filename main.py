@@ -1,5 +1,5 @@
 import requests
-
+finansal_tablo_url = 'https://malitablolar.com/finansal-tablo/{kagit}/bilanco?kur=TL'
 # Kullanıcıdan bilgileri alma
 kullanici_adi = input("Email: ")
 sifre = input("Şifre: ")
@@ -25,6 +25,19 @@ with requests.Session() as session:
         # Giriş sonrası sayfanın içeriğini kontrol et
         if 'https://malitablolar.com/Analiz' in response.url:
             print('Parola Doğru.')
+            kagit_adi = input("Finansal tablosu için kağıt adı girin: ")
+
+            # Finansal tablo URL'sini oluşturarak yönlendirme
+            finansal_tablo_url = finansal_tablo_url.format(kagit=kagit_adi)
+
+            # Finansal tablo sayfasına yönlendirme
+            response = session.get(finansal_tablo_url)
+
+            # Finansal tablo sayfasının içeriğini kontrol et
+            if response.status_code == 200:
+                print(f"{kagit_adi} finansal tablo sayfasına yönlendirildi.")
+            else:
+                print("HATA!KAĞIT ADI YANLIŞ GİRİLDİ")
         elif 'https://malitablolar.com/Aut/Login' in response.url:
             print('Şifre yanlış, tekrar deneyin.')
         else:
