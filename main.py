@@ -6,7 +6,7 @@ import os
 import time
 
 def indirilen_dosyayi_guncelle():
-    # Kullanıcıdan bilgileri alma
+    # Kullanıcıdan giriş bilgilerini alma
     kullanici_adi = input("Email: ")
     sifre = input("Şifre: ")
     kagit_adi = input("Finansal tablosu için kağıt adı girin: ")
@@ -20,11 +20,12 @@ def indirilen_dosyayi_guncelle():
     # Giriş yapılacak sayfanın URL'si
     url = 'https://malitablolar.com/Aut/Login'
     finansal_tablo_url = f'https://malitablolar.com/finansal-tablo/{kagit_adi}/bilanco?kur=TL'
+    finansal_tablo_url_gelir = f'https://malitablolar.com/finansal-tablo/{kagit_adi}/gelir-tablosu?kur=TL'
 
     # Tarayıcı sürücüsünü başlatma
     driver = webdriver.Chrome()
 
-    # Oturum başlatma ve giriş yapma
+    # Giriş yapma
     driver.get(url)
 
     # Email alanını bulma ve giriş yapma
@@ -42,11 +43,11 @@ def indirilen_dosyayi_guncelle():
     # Giriş butonuna tıklama
     sifre_input.submit()
 
-    # Giriş sonrası HTTP durum koduna göre kontrol
+    # Giriş sonrası sayfa kontrolü
     if 'https://malitablolar.com/Analiz' in driver.current_url:
         print('Parola Doğru.')
 
-        # Finansal tablo sayfasına yönlendirme
+        # "bilanco" tablosunu indirme
         driver.get(finansal_tablo_url)
 
         # Sayfanın yüklenmesini bekleyelim
@@ -55,38 +56,56 @@ def indirilen_dosyayi_guncelle():
         )
 
         # Excel butonunu bulma ve tıklama
-        try:
-            excel_button = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "buttons-excel"))
-            )
-            excel_button.click()
-            print("Excel butonuna tıklandı.")
+        excel_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "buttons-excel"))
+        )
+        excel_button.click()
+        print("**********")
 
-            # İndirme işlemi tamamlanmasını beklemek için kısa bir süre bekleyelim
-            time.sleep(5)  # Bu süreyi ihtiyaca göre ayarlayabilirsiniz
+        # İndirme işlemi tamamlanmasını beklemek için kısa bir süre bekleyelim
+        time.sleep(5)
 
-            # İndirilenler klasörü
-            indirilenler_klasoru = os.path.expanduser('~') + '\\Downloads\\'
+        # İndirilen dosyayı bulma ve adını değiştirme
+        indirilenler_klasoru = os.path.expanduser('~') + '\\Downloads\\'
+        hedef_dosya = "MALİTABLOLAR  Analiz.xlsx"
+        dosya_yolu = os.path.join(indirilenler_klasoru, hedef_dosya)
 
-            # İndirilenler klasöründeki dosyayı bul
-            hedef_dosya = "MALİTABLOLAR  Analiz.xlsx"
-            dosya_yolu = os.path.join(indirilenler_klasoru, hedef_dosya)
+        if os.path.isfile(dosya_yolu):
+            yeni_dosya_adı = f"{kagit_adi}_bilanco.xlsx"
+            yeni_dosya_yolu = os.path.join(indirilenler_klasoru, yeni_dosya_adı)
+            os.rename(dosya_yolu, yeni_dosya_yolu)
+            print(f"{hedef_dosya} dosyasının yeni adı: {yeni_dosya_adı}")
+        else:
+            print(f"Hata: {hedef_dosya} dosyası bulunamadı.")
 
-            # Dosya varsa, finansal tablo adıyla yeni bir dosya adı oluştur
-            if os.path.isfile(dosya_yolu):
-                yeni_dosya_adı = f"{kagit_adi}_bilanco.xlsx"
+        # "gelir-tablosu" tablosunu indirme
+        driver.get(finansal_tablo_url_gelir)
 
-                # Dosyayı yeniden adlandır
-                yeni_dosya_yolu = os.path.join(indirilenler_klasoru, yeni_dosya_adı)
-                os.rename(dosya_yolu, yeni_dosya_yolu)
+        # Sayfanın yüklenmesini bekleyelim
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "buttons-excel"))
+        )
 
-                print(f"{hedef_dosya} dosyasının yeni adı: {yeni_dosya_adı}")
+        # Excel butonunu bulma ve tıklama
+        excel_button_gelir = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "buttons-excel"))
+        )
+        excel_button_gelir.click()
+        print("**********")
 
-            else:
-                print(f"Hata: {hedef_dosya} dosyası bulunamadı.")
+        # İndirme işlemi tamamlanmasını beklemek için kısa bir süre bekleyelim
+        time.sleep(5)
 
-        except Exception as e:
-            print(f"Hata: Excel butonu bulunamadı veya tıklanamadı. {e}")
+        # İndirilen dosyayı bulma ve adını değiştirme
+        dosya_yolu_gelir = os.path.join(indirilenler_klasoru, hedef_dosya)
+
+        if os.path.isfile(dosya_yolu_gelir):
+            yeni_dosya_adı_gelir = f"{kagit_adi}_gelir.xlsx"
+            yeni_dosya_yolu_gelir = os.path.join(indirilenler_klasoru, yeni_dosya_adı_gelir)
+            os.rename(dosya_yolu_gelir, yeni_dosya_yolu_gelir)
+            print(f"{hedef_dosya} dosyasının yeni adı: {yeni_dosya_adı_gelir}")
+        else:
+            print(f"Hata: {hedef_dosya} dosyası bulunamadı.")
 
     else:
         print('Şifre yanlış, tekrar deneyin.')
